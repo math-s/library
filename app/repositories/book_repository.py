@@ -3,6 +3,7 @@ from sqlalchemy import desc
 from ..models import Book
 from typing import List, Tuple
 
+
 class BookRepository:
     def __init__(self, db: Session):
         self.db = db
@@ -17,17 +18,13 @@ class BookRepository:
     def get_all(self, skip: int = 0, limit: int = 10) -> Tuple[List[Book], int]:
         # Get total count
         total = self.db.query(Book).count()
-        
+
         # Get paginated results
         books = (
-            self.db.query(Book)
-            .order_by(desc(Book.id))
-            .offset(skip)
-            .limit(limit)
-            .all()
+            self.db.query(Book).order_by(desc(Book.id)).offset(skip).limit(limit).all()
         )
-        
+
         return books, total
 
     def get_by_id(self, book_id: int) -> Book:
-        return self.db.query(Book).filter(Book.id == book_id).first() 
+        return self.db.query(Book).filter(Book.id == book_id).first()

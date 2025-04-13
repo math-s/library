@@ -2,15 +2,17 @@ from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 from .database import Base
 
+
 class Author(Base):
     __tablename__ = "authors"
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
     bio = Column(String, nullable=True)
-    
+
     # Relationship with books
     books = relationship("Book", back_populates="author")
+
 
 class Book(Base):
     __tablename__ = "books"
@@ -18,9 +20,9 @@ class Book(Base):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, index=True)
     isbn = Column(String, unique=True, index=True)
-    
+
     # Foreign key to author
     author_id = Column(Integer, ForeignKey("authors.id"))
-    
+
     # Relationship with author
-    author = relationship("Author", back_populates="books") 
+    author = relationship("Author", back_populates="books")

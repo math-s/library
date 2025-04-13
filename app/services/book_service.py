@@ -6,12 +6,13 @@ from ..models import Book
 from ..schemas import Book as BookSchema, PaginatedResponse
 from typing import List, Optional, Dict
 
+
 class BookService:
     def __init__(
         self,
         book_repository: BookRepository,
         author_repository: AuthorRepository,
-        google_books_repository: GoogleBooksRepository
+        google_books_repository: GoogleBooksRepository,
     ):
         self.book_repository = book_repository
         self.author_repository = author_repository
@@ -22,10 +23,10 @@ class BookService:
         author = self.author_repository.get_by_id(author_id)
         if not author:
             raise HTTPException(status_code=404, detail="Author not found")
-        
+
         # Try to get additional book information from Google Books
         google_book = await self.google_books_repository.get_book_by_isbn(isbn)
-        
+
         db_book = self.book_repository.create(title, isbn, author_id)
         return BookSchema.model_validate(db_book)
 
@@ -34,16 +35,16 @@ class BookService:
             raise HTTPException(status_code=400, detail="Page must be greater than 0")
         if size < 1:
             raise HTTPException(status_code=400, detail="Size must be greater than 0")
-        
+
         skip = (page - 1) * size
         books, total = self.book_repository.get_all(skip=skip, limit=size)
-        
+
         return PaginatedResponse(
             items=[BookSchema.model_validate(book) for book in books],
             total=total,
             page=page,
             size=size,
-            pages=(total + size - 1) // size
+            pages=(total + size - 1) // size,
         )
 
     def get_book(self, book_id: int) -> BookSchema:
@@ -52,8 +53,14 @@ class BookService:
             raise HTTPException(status_code=404, detail="Book not found")
         return BookSchema.model_validate(book)
 
-    async def search_google_books(self, query: str, max_results: int = 10) -> List[GoogleBook]:
+    async def search_google_books(
+        self, query: str, max_results: int = 10
+    ) -> List[GoogleBook]:
         return await self.google_books_repository.search_books(query, max_results)
 
-    async def get_books_by_author_from_google(self, author_name: str, max_results: int = 10) -> List[GoogleBook]:
-        return await self.google_books_repository.get_books_by_author(author_name, max_results) 
+    async def get_books_by_author_from_google(
+        self, author_name: str, max_results: int = 10
+    ) -> List[GoogleBook]:
+        return await self.google_books_repository.get_books_by_author(
+            author_name, max_results
+        )

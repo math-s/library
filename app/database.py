@@ -10,27 +10,26 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Get database URL from environment variable
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/library")
+DATABASE_URL = os.getenv(
+    "DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/library"
+)
 
-# Create engine
+# Create sync and async engines
+# For async operations, we replace 'postgresql://' with 'postgresql+asyncpg://'
 engine = create_engine(DATABASE_URL)
+async_engine = create_async_engine(
+    DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://")
+)
 
-# Create session factory
+# Create session factories
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-# Create async engine
-ASYNC_DATABASE_URL = os.getenv("ASYNC_DATABASE_URL", "postgresql+asyncpg://postgres:postgres@localhost:5432/library")
-async_engine = create_async_engine(ASYNC_DATABASE_URL)
-
-# Create async session factory
 AsyncSessionLocal = sessionmaker(
-    async_engine,
-    class_=AsyncSession,
-    expire_on_commit=False
+    async_engine, class_=AsyncSession, expire_on_commit=False
 )
 
 # Create base class for models
 Base = declarative_base()
+
 
 def get_db():
     db = SessionLocal()
@@ -39,9 +38,10 @@ def get_db():
     finally:
         db.close()
 
+
 async def get_async_db():
     async with AsyncSessionLocal() as session:
         try:
             yield session
         finally:
-            await session.close() 
+            await session.close()

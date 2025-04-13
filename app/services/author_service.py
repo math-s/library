@@ -4,6 +4,7 @@ from ..models import Author
 from ..schemas import Author as AuthorSchema
 from typing import List
 
+
 class AuthorService:
     def __init__(self, author_repository: AuthorRepository):
         self.author_repository = author_repository
@@ -20,4 +21,4 @@ class AuthorService:
         author = self.author_repository.get_by_id(author_id)
         if not author:
             raise HTTPException(status_code=404, detail="Author not found")
-        return AuthorSchema.model_validate(author) 
+        return AuthorSchema.model_validate(author)
