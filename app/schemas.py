@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Optional, Dict, Any
 
 class AuthorBase(BaseModel):
@@ -10,9 +10,7 @@ class AuthorCreate(AuthorBase):
 
 class Author(AuthorBase):
     id: int
-
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class BookBase(BaseModel):
     title: str = Field(..., min_length=1, max_length=200)
@@ -26,16 +24,12 @@ class BookAuthor(BaseModel):
     id: int
     name: str
     bio: Optional[str]
-
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class Book(BookBase):
     id: int
     author: BookAuthor
-
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class PaginatedResponse(BaseModel):
     items: List[Any]
